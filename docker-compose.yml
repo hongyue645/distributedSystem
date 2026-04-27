@@ -1,21 +1,31 @@
-version: '3.8'
-
 services:
-  # Node 1: The Gateway API
   api-gateway:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["uvicorn", "gateway:app", "--host", "0.0.0.0", "--port", "8000"]
     ports:
       - "8000:8000"
     env_file:
       - .env
-    # Uses the default CMD from the Dockerfile (uvicorn gateway:app)
 
-  # Node 2: The Matching Engine Worker
   matching-worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-u", "matching_worker.py"]
     env_file:
       - .env
-    # Override the default command to run the worker script instead!
-    command: ["python", "-u", "matching_worker.py"]
+    depends_on:
+      - api-gateway
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
     depends_on:
       - api-gateway
