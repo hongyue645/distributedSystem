@@ -84,7 +84,21 @@ function App() {
         throw new Error(errorBody.detail || "Failed to submit item");
       }
 
-      setSubmitStatus("Item submitted successfully. The matching worker will check it in the background.");
+      const result = await response.json();
+      const matchingResult = result.matching_result;
+
+      if (matchingResult?.matched) {
+        setSubmitStatus(
+          `Item submitted successfully. Match found with item ID ${matchingResult.matched_item_id}. Score: ${matchingResult.score}.`
+        );
+      } else if (matchingResult?.message) {
+        setSubmitStatus(
+          `Item submitted successfully. ${matchingResult.message}`
+        );
+      } else {
+        setSubmitStatus("Item submitted successfully.");
+      }
+
       setForm(initialForm);
       await fetchItems();
     } catch (err) {

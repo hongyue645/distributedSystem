@@ -2,5 +2,5 @@ fastapi
 uvicorn
 supabase
 python-dotenv
-pydantic
-thefuzz[speedup]
+thefuzz
+httpx
