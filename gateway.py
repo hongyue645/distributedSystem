@@ -1,4 +1,6 @@
 import os
+import time
+import threading
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -24,6 +26,16 @@ app.add_middleware(
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
+
+def monitor_system_health():
+    """A background thread that runs independently to log system health."""
+    while True:
+        print("🧵 [THREAD] Health Check: Gateway API is active and ready for requests.")
+        time.sleep(60) # Logs every 60 seconds
+
+# Start the background thread as a daemon so it closes when the server closes
+health_thread = threading.Thread(target=monitor_system_health, daemon=True)
+health_thread.start()
 
 # Define what an incoming Item should look like
 class ItemPayload(BaseModel):
