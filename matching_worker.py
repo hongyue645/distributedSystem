@@ -19,7 +19,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 class MatchRequest(BaseModel):
-    item_id: int
+    item_id: str
 
 
 @app.get("/health")

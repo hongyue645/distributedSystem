@@ -89,7 +89,7 @@ function App() {
 
       if (matchingResult?.matched) {
         setSubmitStatus(
-          `Item submitted successfully. Match found with item ID ${matchingResult.matched_item_id}. Score: ${matchingResult.score}.`
+          `Item submitted successfully. Match found .`
         );
       } else if (matchingResult?.message) {
         setSubmitStatus(
