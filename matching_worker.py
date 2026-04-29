@@ -21,6 +21,35 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 class MatchRequest(BaseModel):
     item_id: str
 
+@app.on_event("startup")
+def process_backlog_on_startup():
+    """
+    Runs exactly once when the worker container starts.
+    It sweeps the database for any items submitted while it was offline.
+    """
+    try:
+        print("🚀 [STARTUP] Worker waking up. Checking for missed matches...")
+        
+        # Fetch all items that are still 'open'
+        response = supabase.table("items").select("id").eq("status", "open").execute()
+        open_items = response.data
+        
+        if not open_items:
+            print("✅ [STARTUP] No backlog found. System is up to date.")
+            return
+
+        print(f"⚠️ [STARTUP] Found {len(open_items)} open items in the backlog. Processing now...")
+        
+        # Run each missed item through the matching engine
+        for item in open_items:
+            match_request = MatchRequest(item_id=str(item["id"]))
+            match_item(match_request)
+            
+        print("✅ [STARTUP] Backlog processing complete!")
+
+    except Exception as e:
+        print(f"❌ [STARTUP] Error processing backlog: {str(e)}")
+
 
 @app.get("/health")
 def health_check():
