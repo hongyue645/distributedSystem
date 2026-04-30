@@ -36,12 +36,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def monitor_system_health():
-    """
-    Background thread for basic gateway health monitoring.
-    This is used to demonstrate threading in the distributed system.
-    """
     while True:
-        print("🧵 [THREAD] Gateway API is running.")
+        print("[THREAD] Gateway API is running.")
         time.sleep(60)
 
 
@@ -66,10 +62,6 @@ async def health_check():
 
 @app.post("/items")
 async def report_item(item: ItemPayload):
-    """
-    Receives a lost/found item, stores it in the database,
-    and remotely calls the matching worker through REST-based RPC.
-    """
 
     try:
         data = item.model_dump()
@@ -122,11 +114,8 @@ async def report_item(item: ItemPayload):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/items")
+@app.get("/items") #fetch all items 
 async def get_items():
-    """
-    Fetches all items so the frontend can display them.
-    """
 
     try:
         response = supabase.table("items").select("*").execute()
